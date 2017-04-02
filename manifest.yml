@@ -1,0 +1,9 @@
+---
+applications:
+- name: cf-ssh-chisel
+  memory: 512M
+  instances: 1
+  path: .
+  command: bash deploy.sh
+  env:
+    GOPACKAGENAME: github.com/jpillora/chisel

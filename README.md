@@ -1,3 +1,88 @@
+# SSH into Cloud Foundry Application Containers
+
+## Instructions
+
+1. Clone this repo
+
+	```
+	mkdir cf_ssh
+	cd cf_ssh
+	git clone https://github.com/gurjeet/cf-ssh-chisel.git src/github.com/jpillora/chisel
+	cd src/github.com/jpillora/chisel
+	```
+
+2. (optional, but recommended) Generate key to identify the SSH server
+
+	```
+	ssh-keygen -t rsa -f ssh_host_rsa_key -N ''
+	```
+
+3. Add your public key to the cloned repository
+
+	```
+	cp $HOME/.ssh/id_rsa.pub ./id_rsa.pub
+	```
+
+4. Push/publish the application to Cloud Foundry
+
+	This may take some time, since the SSH server is built from source on app
+	start.
+
+	Note the URL/route assigned to the application.
+
+	```
+	cf push --random-route
+	```
+
+5. Build the chisel application
+
+	```
+	export GOPATH=$(echo ${PWD%src/github.com/jpillora/chisel})
+	go build
+	```
+
+6. Run the chisel client and connect to the Cloud Foundry application
+
+	Use the URL/route assigned to the app in step 4 above.
+
+	```
+	chisel client --keepalive 10s https://your-cf-apps-url 5022::2022
+	```
+
+	You now have a TCP tunnel configured from localhost (port 5022) to the SSH
+	daemon (port 2022) running in Cloud Foundry container. The remote port
+	(2022 in this case) is fixed. You can run multiple chisel clients simultaneously
+	by choosing a different local port (5022 in this case).
+
+7. Use SSH to login in the container
+
+	Use standard SSH applications to connect to the SSH daemon in the container.
+	The user name to connect as is `vcap`. The SSH utiliites will use your private
+	key, stored in `$HOME/.ssh/id_rsa`, for authentication.
+
+	If you wish to use some other private key, you can provide that using the
+	`-i` switch. You must have uploaded the corresponding public key in step 3
+	above, for this to work.
+
+	```
+	ssh vcap@localhost -p 5022
+	```
+
+8. Perform local port forwarding
+
+	You can also use SSH to perform local port forwarding.
+
+	For example, you can use this command to create a local port 6632 that
+	forwards all TCP traffic to your Postgres database (port 5432) instance
+	that is only accessible from Cloud Foundry applications.
+
+	```
+	ssh -L 6632:myapp-db.example.com:5432 vcap@localhost -p 5022
+	```
+
+	You can now connect Postgres utilities to localhost:6632 to connect to and
+	manage your database avaiable from Cloud Foundry.
+
 # chisel
 
 Chisel is a fast TCP tunnel, transported over HTTP. Single executable including both client and server. Written in Go (Golang). Chisel is mainly useful for passing through firewalls, though it can also be used to provide a secure endpoint into your network. Chisel is very similar to [crowbar](https://github.com/q3k/crowbar) though achieves **much** higher [performance](#performance).
