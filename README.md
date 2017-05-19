@@ -31,7 +31,7 @@
 	Note the URL/route assigned to the application.
 
 	```
-	cf push --random-route
+	cf push --random-route -t 180
 	```
 
 5. Build the chisel application
@@ -46,7 +46,7 @@
 	Use the URL/route assigned to the app in step 4 above.
 
 	```
-	chisel client --keepalive 10s https://your-cf-apps-url 5022::2022
+	./chisel client --keepalive 10s https://your-cf-apps-url 5022::2022
 	```
 
 	You now have a TCP tunnel configured from localhost (port 5022) to the SSH
