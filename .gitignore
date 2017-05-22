@@ -1,0 +1,7 @@
+# Ignore client
+chisel
+
+# Ignore things that are done on a per-instance basis
+id_rsa.pub
+ssh_host_rsa_key
+ssh_host_rsa_key.pub
