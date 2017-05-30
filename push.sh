@@ -49,7 +49,13 @@ fi
 
 url=`cf app $appname | grep urls: | cut -d ' ' -f2`
 
-./chisel client --keepalive 10s https://$url 5022:2022 &
+# If there's an existing client running, kill it
+client_pids=`ps auxww | grep ./chisel | grep 5022:2022 | grep -v grep | awk '{print $2}'`
+if [ -n "$client_pids" ]; then
+  kill $client_pids
+fi
+
+./chisel client --keepalive 10s https://$url 5022:2022 > /dev/null &
 
 cat <<_EOF_
 You can now connect via
