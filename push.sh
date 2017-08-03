@@ -40,32 +40,6 @@ go build
 
 wait
 
-cf app $appname > /dev/null # Make sure app is there
-
-if ! cf app $appname | grep -q running; then
-  echo "ERROR: $appname is not running"
-  exit 1
-fi
-
-url=`cf app $appname | grep urls: | cut -d ' ' -f2`
-
-# If there's an existing client running, kill it
-client_pids=`ps auxww | grep ./chisel | grep 5022:2022 | grep -v grep | awk '{print $2}'`
-if [ -n "$client_pids" ]; then
-  kill $client_pids
-fi
-
-./chisel client --keepalive 10s https://$url 5022:2022 > /dev/null &
-
-cat <<_EOF_
-You can now connect via
-
-ssh vcap@localhost -p 5022
-
-or if you added an entry to ~/.ssh/config:
-
-ssh chisel
-
-_EOF_
+./tunnel
 
 # vi: expandtab sw=2 ts=2
