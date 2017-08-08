@@ -31,7 +31,7 @@ You can now connect via
 
 ssh vcap@localhost -p 5022
 
-or if you added an entry to ~/.ssh/config:
+or **IF** you added an entry to ~/.ssh/config:
 
 ssh chisel
 
