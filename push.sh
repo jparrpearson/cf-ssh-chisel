@@ -3,6 +3,7 @@
 set -e # exit on error
 
 cd `dirname $0`
+source .default.sh
 
 appname="cf-ssh-chisel-$USER"
 
@@ -10,7 +11,7 @@ appname="cf-ssh-chisel-$USER"
 # TODO: put all generated files (this and id_rsa.pub) into a single directory
 if [ ! -r ssh_host_rsa_key ]; then
   ssh-keygen -t rsa -f ssh_host_rsa_key -N '' -C "chisel-ssh identity for $appname"
-  echo '[localhost]:5022' `cat ssh_host_rsa_key.pub` >> ~/.ssh/known_hosts
+  echo '[localhost]:$CHISEL_LOCAL_PORT' `cat ssh_host_rsa_key.pub` >> ~/.ssh/known_hosts
 fi
 
 if [ ! -r id_rsa.pub ]; then
@@ -27,7 +28,7 @@ have one.
 Host chisel
     ForwardAgent yes
     HostName localhost
-    Port 5022
+    Port $CHISEL_LOCAL_PORT
     User vcap
     Compression yes
 _EOF_
