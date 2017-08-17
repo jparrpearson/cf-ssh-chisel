@@ -1,0 +1,47 @@
+#!/bin/sh
+
+set -e # exit on error
+
+cd `dirname $0`
+
+appname="cf-ssh-chisel-$USER"
+echo "Starting $appname forwarding local port ${CHISEL_LOCAL_PORT:=5022} to remote port ${CHISEL_REMOTE_PORT:=2022}"
+
+echo "Checking if $appname is running"
+cf app $appname > /dev/null # Make sure app is there
+
+if ! cf app $appname | grep -q running; then
+  echo "ERROR: $appname is not running"
+  exit 1
+fi
+
+echo "Obtaining url for $appname"
+url=`cf app $appname | egrep 'routes|urls' | awk '{print $2}'`
+
+# Sanity-check the URL. This is kinda important because the chisel client
+# doesn't complain if it can't connect. :(
+echo "$url" | grep "$appname" | grep -q predix.io || { echo "URL doesn't look sane: $url"; exit 2; }
+
+# If there's an existing client running, kill it
+client_pids=`ps auxww | grep ./chisel | grep ${CHISEL_LOCAL_PORT}:${CHISEL_REMOTE_PORT} | grep -v grep | awk '{print $2}'`
+if [ -n "$client_pids" ]; then
+  kill $client_pids
+fi
+
+echo "Starting client, connecting to $url"
+cmd="./chisel client --keepalive 10s https://$url ${CHISEL_LOCAL_PORT}:${CHISEL_REMOTE_PORT}"
+echo "Running in background: $cmd"
+$cmd > /dev/null &
+
+cat <<_EOF_
+You can now connect via
+
+ssh vcap@localhost -p ${CHISEL_LOCAL_PORT}
+
+or **IF** you added an entry to ~/.ssh/config:
+
+ssh chisel
+
+_EOF_
+
+# vi: expandtab sw=2 ts=2

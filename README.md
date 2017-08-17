@@ -54,7 +54,24 @@
 	(2022 in this case) is fixed. You can run multiple chisel clients simultaneously
 	by choosing a different local port (5022 in this case).
 
-7. Use SSH to login in the container
+7. Add entry to ~/.ssh/config (optional)
+    
+    You can add an entry to your ssh config to make ssh'ing to chisel easier.
+    NOTE: the config file is position sensitive, so if you have a `Host *`
+    entry in your file you need to add this before the `Host *` entry.
+
+    ```
+    Host chisel
+        ForwardAgent yes
+        HostName localhost
+        Port 5022
+        User vcap
+        Compression yes
+    ```
+
+    This entry will allow you to simply `ssh chisel` to connect.
+
+8. Use SSH to login in the container
 
 	Use standard SSH applications to connect to the SSH daemon in the container.
 	The user name to connect as is `vcap`. The SSH utiliites will use your private
@@ -64,17 +81,33 @@
 	`-i` switch. You must have uploaded the corresponding public key in step 3
 	above, for this to work.
 
+    If you added an entry to ~/.ssh/config:
+
+    ```
+    ssh chisel
+    ```
+
+    otherwise:
+
 	```
 	ssh vcap@localhost -p 5022
 	```
 
-8. Perform local port forwarding
+9. Perform local port forwarding
 
 	You can also use SSH to perform local port forwarding.
 
 	For example, you can use this command to create a local port 6632 that
 	forwards all TCP traffic to your Postgres database (port 5432) instance
 	that is only accessible from Cloud Foundry applications.
+
+    If you added an entry to ~/.ssh/config:
+
+    ```
+	ssh -L 6632:myapp-db.example.com:5432 chisel
+    ```
+
+    otherwise:
 
 	```
 	ssh -L 6632:myapp-db.example.com:5432 vcap@localhost -p 5022
