@@ -6,6 +6,7 @@ cd `dirname $0`
 
 appname="cf-ssh-chisel-$USER"
 echo "Starting $appname forwarding local port ${CHISEL_LOCAL_PORT:=5022} to remote port ${CHISEL_REMOTE_PORT:=2022}"
+pidfile=tunnel-${CHISEL_LOCAL_PORT}.pid
 
 echo "Checking if $appname is running"
 cf app $appname > /dev/null # Make sure app is there
@@ -23,6 +24,11 @@ url=`cf app $appname | egrep 'routes|urls' | awk '{print $2}'`
 echo "$url" | grep "$appname" | grep -q predix.io || { echo "URL doesn't look sane: $url"; exit 2; }
 
 # If there's an existing client running, kill it
+if [ -r "$pidfile" ]; then
+  kill $(cat "$pidfile") 2>/dev/null
+  rm "$pidfile"
+fi
+
 client_pids=`ps auxww | grep ./chisel | grep ${CHISEL_LOCAL_PORT}:${CHISEL_REMOTE_PORT} | grep -v grep | awk '{print $2}'`
 if [ -n "$client_pids" ]; then
   kill $client_pids
@@ -32,6 +38,7 @@ echo "Starting client, connecting to $url"
 cmd="./chisel client --keepalive 10s https://$url ${CHISEL_LOCAL_PORT}:${CHISEL_REMOTE_PORT}"
 echo "Running in background: $cmd"
 $cmd > /dev/null &
+echo $# > "$pidfile"
 
 cat <<_EOF_
 You can now connect via
