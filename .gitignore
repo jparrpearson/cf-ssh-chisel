@@ -5,3 +5,6 @@ chisel
 id_rsa.pub
 ssh_host_rsa_key
 ssh_host_rsa_key.pub
+
+# Ignore any pid files
+tunnel-*.pid
