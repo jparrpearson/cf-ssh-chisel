@@ -38,7 +38,7 @@ echo "Starting client, connecting to $url"
 cmd="./chisel client --keepalive 10s https://$url ${CHISEL_LOCAL_PORT}:${CHISEL_REMOTE_PORT}"
 echo "Running in background: $cmd"
 $cmd > /dev/null &
-echo $# > "$pidfile"
+echo $! > "$pidfile"
 
 cat <<_EOF_
 You can now connect via
