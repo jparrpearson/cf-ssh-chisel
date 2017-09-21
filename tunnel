@@ -25,13 +25,11 @@ echo "$url" | grep "$appname" | grep -q predix.io || { echo "URL doesn't look sa
 
 # If there's an existing client running, kill it
 if [ -r "$pidfile" ]; then
-  kill $(cat "$pidfile") 2>/dev/null
-  rm "$pidfile"
-fi
+  pid=$(cat "$pidfile")
 
-client_pids=`ps auxww | grep ./chisel | grep ${CHISEL_LOCAL_PORT}:${CHISEL_REMOTE_PORT} | grep -v grep | awk '{print $2}'`
-if [ -n "$client_pids" ]; then
-  kill $client_pids
+  # Note ps will exit non-0 if $pid isn't running
+  ps -p $pid | grep -q chisel && kill $pid
+  rm "$pidfile"
 fi
 
 echo "Starting client, connecting to $url"
