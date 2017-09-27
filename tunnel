@@ -9,8 +9,6 @@ echo "Starting $appname forwarding local port ${CHISEL_LOCAL_PORT:=5022} to remo
 pidfile=tunnel-${CHISEL_LOCAL_PORT}.pid
 
 echo "Checking if $appname is running"
-cf app $appname > /dev/null # Make sure app is there
-
 if ! cf app $appname | grep -q running; then
   echo "ERROR: $appname is not running"
   exit 1
