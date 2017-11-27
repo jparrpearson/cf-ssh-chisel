@@ -3,25 +3,22 @@
 set -e # exit on error
 
 cd `dirname $0`
+source .default.sh
 
-appname="cf-ssh-chisel-$USER"
-echo "Starting $appname forwarding local port ${CHISEL_LOCAL_PORT:=5022} to remote port ${CHISEL_REMOTE_PORT:=2022}"
-pidfile=tunnel-${CHISEL_LOCAL_PORT}.pid
+echo "Starting $CHISEL_APP_NAME forwarding local port $CHISEL_LOCAL_PORT to remote port $CHISEL_REMOTE_PORT"
 
-echo "Checking if $appname is running"
-if ! cf app $appname | grep -q running; then
-  echo "ERROR: $appname is not running"
-  exit 1
-fi
+# Make sure that app is running
+./push.sh
 
-echo "Obtaining url for $appname"
-url=`cf app $appname | egrep 'routes|urls' | awk '{print $2}'`
+echo "Obtaining url for $CHISEL_APP_NAME"
+url=`cf app $CHISEL_APP_NAME | egrep 'routes|urls' | awk '{print $2}'`
 
 # Sanity-check the URL. This is kinda important because the chisel client
 # doesn't complain if it can't connect. :(
-echo "$url" | grep "$appname" | grep -q predix.io || { echo "URL doesn't look sane: $url"; exit 2; }
+echo "$url" | grep "$CHISEL_APP_NAME" | grep -q predix.io || { echo "URL doesn't look sane: $url"; exit 2; }
 
 # If there's an existing client running, kill it
+pidfile=tunnel-${CHISEL_LOCAL_PORT}.pid
 if [ -r "$pidfile" ]; then
   pid=$(cat "$pidfile")
 
