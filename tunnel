@@ -4,11 +4,30 @@ set -e # exit on error
 
 cd `dirname $0`
 source .default.sh
+pidfile=tunnel-${CHISEL_LOCAL_PORT}.pid
+
+stopTunnel() {
+  if [ -r "$pidfile" ]; then
+    pid=$(cat "$pidfile")
+
+    # Note ps will exit non-0 if $pid isn't running
+    if ps -p $pid | grep -q chisel; then
+      echo stopping tunnel
+      kill $pid
+    fi
+    rm "$pidfile"
+  fi
+}
+
+if [ "$1" == "stop" ]; then
+  stopTunnel
+  exit
+fi
 
 echo "Starting $CHISEL_APP_NAME forwarding local port $CHISEL_LOCAL_PORT to remote port $CHISEL_REMOTE_PORT"
 
 # Make sure that app is running
-./push.sh
+./push.sh $@
 
 echo "Obtaining url for $CHISEL_APP_NAME"
 url=`cf app $CHISEL_APP_NAME | egrep 'routes|urls' | awk '{print $2}'`
@@ -18,14 +37,7 @@ url=`cf app $CHISEL_APP_NAME | egrep 'routes|urls' | awk '{print $2}'`
 echo "$url" | grep "$CHISEL_APP_NAME" | grep -q predix.io || { echo "URL doesn't look sane: $url"; exit 2; }
 
 # If there's an existing client running, kill it
-pidfile=tunnel-${CHISEL_LOCAL_PORT}.pid
-if [ -r "$pidfile" ]; then
-  pid=$(cat "$pidfile")
-
-  # Note ps will exit non-0 if $pid isn't running
-  ps -p $pid | grep -q chisel && kill $pid
-  rm "$pidfile"
-fi
+stopTunnel
 
 echo "Starting client, connecting to $url"
 cmd="./chisel client --keepalive 10s https://$url ${CHISEL_LOCAL_PORT}:${CHISEL_REMOTE_PORT}"

@@ -39,7 +39,7 @@ Host chisel
 _EOF_
 fi
 
-cf push -t 180 "$CHISEL_APP_NAME" & # -t: maximum number of seconds to wait for app to start
+cf push -t 180 $@ "$CHISEL_APP_NAME" & # -t: maximum number of seconds to wait for app to start
 
 export GOPATH=$(echo ${PWD%src/github.com/jpillora/chisel})
 go build
