@@ -19,10 +19,22 @@ stopTunnel() {
   fi
 }
 
-if [ "$1" == "stop" ]; then
+dropTunnel() {
   stopTunnel
-  exit
-fi
+  cf delete -f $CHISEL_APP_NAME
+}
+
+restartTunnel() {
+  echo "Restarting $CHISEL_APP_NAME"
+  cf restart $CHISEL_APP_NAME
+}
+
+case $1 in
+  start)    ;; # Just run the script...
+  restart)  restartTunnel;; # Restart the app, then run the script
+  stop)     stopTunnel; exit ;;
+  drop)     dropTunnel; exit ;;
+esac
 
 echo "Starting $CHISEL_APP_NAME forwarding local port $CHISEL_LOCAL_PORT to remote port $CHISEL_REMOTE_PORT"
 
