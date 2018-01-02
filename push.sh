@@ -7,7 +7,15 @@ source .default.sh
 
 # See if we're already running...
 echo "Checking if $CHISEL_APP_NAME is running"
-if cf app $CHISEL_APP_NAME | grep -q running; then
+set +e
+out=`cf app $CHISEL_APP_NAME`
+rc=$?
+set -e
+if [ $rc -ne 0 ]; then
+  echo "cf app $CHISEL_APP_NAME returned $rc" >&2
+  exit $rc
+fi
+if echo "$out" | grep -q running; then
   echo "$CHISEL_APP_NAME is running; skipping push."
   exit
 fi
