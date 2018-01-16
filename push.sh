@@ -12,12 +12,29 @@ out=`cf app $CHISEL_APP_NAME`
 rc=$?
 set -e
 if [ $rc -ne 0 ]; then
-  echo "cf app $CHISEL_APP_NAME returned $rc" >&2
-  exit $rc
-fi
-if echo "$out" | grep -q running; then
-  echo "$CHISEL_APP_NAME is running; skipping push."
-  exit
+  echo "cf app $CHISEL_APP_NAME returned $rc; looking for it via 'cf apps'" >&2
+  out=`cf apps`
+  rc=$?
+  if [ $rc -ne 0 ]; then
+    echo "cf apps returned $rc"
+    exit $rc
+  fi
+
+  lineCount=`echo "$out" | wc -l`
+  secondLine=`echo "$out" | head -n2 | tail -n1`
+  if [ "$secondLine" != "OK" -o $lineCount -lt 4 ]; then
+    echo "unexpected results from 'cf apps':"
+    echo
+    echo "$out"
+    exit 2
+  fi
+
+  # At this point, assume things are OK and that the app just isn't installed.
+else
+  if echo "$out" | grep -q running; then
+    echo "$CHISEL_APP_NAME is running; skipping push."
+    exit
+  fi
 fi
 
 # Generate a key to identify the server (if one doesn't already exist)
@@ -46,6 +63,8 @@ Host chisel
     Compression yes
 _EOF_
 fi
+
+echo "pushing $CHISEL_APP_NAME to cloud foundry"
 
 cf push -t 180 $@ "$CHISEL_APP_NAME" & # -t: maximum number of seconds to wait for app to start
 
