@@ -68,8 +68,7 @@ echo "pushing $CHISEL_APP_NAME to cloud foundry"
 
 cf push -t 180 $@ "$CHISEL_APP_NAME" & # -t: maximum number of seconds to wait for app to start
 
-export GOPATH=$(echo ${PWD%src/github.com/jpillora/chisel})
-go build
+GOPATH=$(cd ../../../..;pwd) go build
 
 wait
 
