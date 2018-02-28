@@ -2,6 +2,9 @@
 # Stop processing on error
 set -e
 
+echo Current environment
+env
+
 echo Configuring container
 mkdir -p etc var/run
 
@@ -45,5 +48,5 @@ $(pwd)/openssh-portable/sshd -f etc/sshd_config
 # echo "$PASS" | passwd 
 
 # Start the webserver immediately; this prevents Cloud Foundry from killing this container
-./bin/chisel server --proxy http://example.com --port $PORT
+./bin/chisel server -v --port $PORT $SERVER_ARGS
 

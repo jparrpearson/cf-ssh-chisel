@@ -5,6 +5,15 @@ set -e # exit on error
 cd `dirname $0`
 source .default.sh
 
+# Always start a build
+GOPATH=$(cd ../../../..;pwd) go build &
+
+# Were we called by ./tunnel?
+if [ "$1" == -t ]; then
+  tunnel=yes
+  shift
+fi
+
 # See if we're already running...
 echo "Checking if $CHISEL_APP_NAME is running"
 set +e
@@ -33,6 +42,7 @@ if [ $rc -ne 0 ]; then
 else
   if echo "$out" | grep -q running; then
     echo "$CHISEL_APP_NAME is running; skipping push."
+    wait # Make sure build is done
     exit
   fi
 fi
@@ -66,12 +76,11 @@ fi
 
 echo "pushing $CHISEL_APP_NAME to cloud foundry"
 
-cf push -t 180 $@ "$CHISEL_APP_NAME" & # -t: maximum number of seconds to wait for app to start
-
-GOPATH=$(cd ../../../..;pwd) go build
+cf push -t 180 $@ "$CHISEL_APP_NAME" # -t: maximum number of seconds to wait for app to start
 
 wait
 
-./tunnel
+# If we weren't started by tunnel, run ./tunnel
+[ -n "$tunnel" ] || ./tunnel
 
 # vi: expandtab sw=2 ts=2

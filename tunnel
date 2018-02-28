@@ -39,7 +39,7 @@ esac
 echo "Starting $CHISEL_APP_NAME forwarding local port $CHISEL_LOCAL_PORT to remote port $CHISEL_REMOTE_PORT"
 
 # Make sure that app is running
-./push.sh $@
+./push.sh -t $@
 
 echo "Obtaining url for $CHISEL_APP_NAME"
 url=`cf app $CHISEL_APP_NAME | egrep 'routes|urls' | awk '{print $2}'`

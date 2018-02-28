@@ -97,6 +97,7 @@ func (s *Server) Run(host, port string) error {
 }
 
 func (s *Server) Start(host, port string) error {
+	s.Debugf("Debug enabled")
 	s.Infof("Fingerprint %s", s.fingerprint)
 	if len(s.Users) > 0 {
 		s.Infof("User authenication enabled")

@@ -142,6 +142,7 @@ func (c *Client) start() {
 		}
 		if connerr != nil {
 			d := b.Duration()
+			c.Debugf("Error connecting: %s", connerr)
 			c.Infof("Retrying in %s...\n", d)
 			connerr = nil
 			time.Sleep(d)
