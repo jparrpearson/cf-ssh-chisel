@@ -52,10 +52,13 @@ fi
 if [ ! -r ssh_host_rsa_key ]; then
   if [ ! -r ~/.ssh/chisel_host_key ]; then
     ssh-keygen -t rsa -f ~/chisel_host_rsa_key -N '' -C "chisel-ssh identity for $CHISEL_APP_NAME"
-    echo '[localhost]:$CHISEL_LOCAL_PORT' `cat ~/chisel_host_rsa_key.pub` >> ~/.ssh/known_hosts
   fi
 
   cp ~/.ssh/chisel_host_key ssh_host_rsa_key
+
+  # We always check to see if the key is in known_hosts, because this is a per-port entry
+  hostsEntry="[127.0.0.1]:$CHISEL_LOCAL_PORT `cat ~/chisel_host_rsa_key.pub`"
+  grep -q "$hostsEntry" ~/.ssh/known_hosts || echo "$hostsEntry" >> ~/.ssh/known_hosts
 fi
 
 if [ ! -r id_rsa.pub ]; then
