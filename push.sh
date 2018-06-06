@@ -50,8 +50,12 @@ fi
 # Generate a key to identify the server (if one doesn't already exist)
 # TODO: put all generated files (this and id_rsa.pub) into a single directory
 if [ ! -r ssh_host_rsa_key ]; then
-  ssh-keygen -t rsa -f ssh_host_rsa_key -N '' -C "chisel-ssh identity for $CHISEL_APP_NAME"
-  echo '[localhost]:$CHISEL_LOCAL_PORT' `cat ssh_host_rsa_key.pub` >> ~/.ssh/known_hosts
+  if [ ! -r ~/.ssh/chisel_host_key ]; then
+    ssh-keygen -t rsa -f ~/chisel_host_rsa_key -N '' -C "chisel-ssh identity for $CHISEL_APP_NAME"
+    echo '[localhost]:$CHISEL_LOCAL_PORT' `cat ~/chisel_host_rsa_key.pub` >> ~/.ssh/known_hosts
+  fi
+
+  cp ~/.ssh/chisel_host_key ssh_host_rsa_key
 fi
 
 if [ ! -r id_rsa.pub ]; then

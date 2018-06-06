@@ -4,7 +4,8 @@ set -e # exit on error
 
 cd `dirname $0`
 source .default.sh
-pidfile=tunnel-${CHISEL_LOCAL_PORT}.pid
+
+pidfile="$TMPDIR/tunnel-${CHISEL_LOCAL_PORT}.pid"
 
 stopTunnel() {
   if [ -r "$pidfile" ]; then
