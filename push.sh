@@ -49,15 +49,17 @@ fi
 
 # Generate a key to identify the server (if one doesn't already exist)
 # TODO: put all generated files (this and id_rsa.pub) into a single directory
-if [ ! -r ssh_host_rsa_key ]; then
-  if [ ! -r ~/.ssh/chisel_host_rsa_key ]; then
-    ssh-keygen -t rsa -f ~/.ssh/chisel_host_rsa_key -N '' -C "chisel-ssh identity"
+deployHostKey=ssh_host_rsa_key 
+if [ ! -r $deployHostKey ]; then
+  localHostKey="$HOME/.ssh/chisel_host_rsa_key" # NOTE: also used to find .pub key!
+  if [ ! -r $localHostKey ]; then
+    ssh-keygen -t rsa -f $localHostKey -N '' -C "chisel-ssh identity"
   fi
 
-  cp ~/.ssh/chisel_host_rsa_key ssh_host_rsa_key
+  cp $localHostKey $deployHostKey
 
   # We always check to see if the key is in known_hosts, because this is a per-port entry
-  hostsEntry="[127.0.0.1]:$CHISEL_LOCAL_PORT `cat ~/chisel_host_rsa_key.pub`"
+  hostsEntry="[127.0.0.1]:$CHISEL_LOCAL_PORT `cat $localHostKey.pub`"
   grep -q "$hostsEntry" ~/.ssh/known_hosts || echo "$hostsEntry" >> ~/.ssh/known_hosts
 fi
 
