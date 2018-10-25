@@ -2,6 +2,9 @@
 # Stop processing on error
 set -e
 
+# The expectation is that the HOME is set to /home/vcap, and that the directory
+# these commands are executed in is at $HOME/app/.
+
 echo Current environment
 env
 
