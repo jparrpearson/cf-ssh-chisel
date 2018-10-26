@@ -2,8 +2,8 @@
 set -e
 set -x
 
-# The expectation is that the HOME is set to /home/vcap, and that the directory
-# these commands are executed in is at $HOME/app/.
+# The expectation is that the HOME is set to /home/vcap/app, and that the directory
+# these commands are executed in is at $HOME.
 
 echo Current environment
 env
@@ -31,7 +31,7 @@ chmod -R 0600 $HOME/.ssh/*
 
 # Install OpenSSH
 pushd $HOME
-for f in $HOME/app/*.deb; do rm -f data.tar.*;  ar x "$f";  tar xf data.tar.*;  done
+for f in $HOME/*.deb; do rm -f data.tar.*;  ar x "$f";  tar xf data.tar.*;  done
 popd
 
 # Launch sshd in background

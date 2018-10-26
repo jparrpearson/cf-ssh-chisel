@@ -18,8 +18,8 @@ MAINTAINER gurjeet@singh.im
 # Once inside the container, run the deploy.sh script to see if everything works
 # as expected.
 
-ENV HOME /home/vcap
-ENV _APP_DIR $HOME/app
+ENV HOME /home/vcap/app
+ENV _APP_DIR $HOME
 RUN mkdir -p $_APP_DIR
 WORKDIR $HOME
 
