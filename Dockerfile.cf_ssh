@@ -1,0 +1,41 @@
+FROM cloudfoundry/cflinuxfs2
+MAINTAINER gurjeet@singh.im
+
+# The purpose of this Dockerfile is to build a Docker image that mimics how
+# Cloud Foundry (CF) brings up this repository, given the manifest.yaml in this
+# repo.
+#
+# When we deploy this repo to CF (using `cf push`), CF builds the chisel code,
+# and creates a container containing the output of the build as well as the code.
+# This is the environment that this Dockerfile tries to provide.
+
+#
+# To test this repo, use the following commands:
+#
+# docker build -f Dockerfile.cf_ssh -t cf_container .
+# docker run -it cf_container bash
+#
+# Once inside the container, run the deploy.sh script to see if everything works
+# as expected.
+
+ENV HOME /home/vcap
+ENV _APP_DIR $HOME/app
+RUN mkdir -p $_APP_DIR
+WORKDIR $HOME
+
+ADD . $_APP_DIR
+RUN chown -R vcap:vcap $HOME
+
+RUN wget -q https://dl.google.com/go/go1.10.4.linux-amd64.tar.gz \
+    && tar -C /usr/local -xzf $_APP_DIR/go1.10.4.linux-amd64.tar.gz \
+    && rm go1.10.4.linux-amd64.tar.gz
+
+ENV GOPATH=$_APP_DIR
+ENV PATH=$PATH:/usr/local/go/bin:$GOPATH/bin
+RUN go get -v github.com/jpillora/chisel
+
+# Set the environment that user gets in CF
+USER vcap:vcap
+WORKDIR $_APP_DIR
+
+CMD ./deploy.sh
