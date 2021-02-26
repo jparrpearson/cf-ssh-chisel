@@ -74,7 +74,7 @@
 8. Use SSH to login in the container
 
 	Use standard SSH applications to connect to the SSH daemon in the container.
-	The user name to connect as is `vcap`. The SSH utiliites will use your private
+	The user name to connect as is `vcap`. The SSH utilities will use your private
 	key, stored in `$HOME/.ssh/id_rsa`, for authentication.
 
 	If you wish to use some other private key, you can provide that using the
@@ -92,6 +92,10 @@
 	```
 	ssh vcap@localhost -p 5022
 	```
+
+    Note that in some CF environments SSH will fail as the vcap user is unable to
+    make use of pseudoterminal interfaces (`/dev/pty/*`).  However, port forwarding
+    should still work.
 
 9. Perform local port forwarding
 
@@ -114,7 +118,7 @@
 	```
 
 	You can now connect Postgres utilities to localhost:6632 to connect to and
-	manage your database avaiable from Cloud Foundry.
+	manage your database available from Cloud Foundry.
 
 # chisel
 

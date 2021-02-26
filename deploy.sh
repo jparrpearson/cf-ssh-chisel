@@ -25,9 +25,12 @@ else
 	ssh-keygen -t rsa -f $HOME/etc/ssh_host_rsa_key -N ''
 fi
 
-mkdir -p $HOME/.ssh
-cat id_rsa.pub >> $HOME/.ssh/authorized_keys
-chmod -R 0600 $HOME/.ssh/*
+# The authorized_keys is expected under /home/vcap, not /home/vcap/app
+USER_HOME=/home/vcap
+mkdir -p $USER_HOME/.ssh
+chmod 0700 $USER_HOME/.ssh
+cat id_rsa.pub >> $USER_HOME/.ssh/authorized_keys
+chmod -R 0600 $USER_HOME/.ssh/authorized_keys
 
 # Install OpenSSH
 pushd $HOME
